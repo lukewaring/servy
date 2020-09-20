@@ -4,6 +4,11 @@ defmodule Servy.Handler do
 
     @pages_path Path.expand("../../pages", __DIR__)
 
+    # Importing allows for removing "Servy.Plugins" before calling functions from that module.
+    # The numbers represent the arity of the imported functions.
+    import Servy.Plugins, only: [rewrite_path: 1, log: 1, track: 1]
+    import Servy.Parser, only: [parse: 1]
+
     @doc "Transforms the request into a response."
     def handle(request) do
         request
@@ -17,38 +22,6 @@ defmodule Servy.Handler do
         # conv = parse(request)
         # conv = route(conv)
         # format_response(conv)
-    end
-
-    @doc "Logs 404 requests."
-    def track(%{ status: 404, path: path } = conv) do
-        IO.puts "Warning: #{path} is on the loose!"
-        conv
-    end
-
-    def track(conv), do: conv
-
-    def rewrite_path(%{ path: "wildlife" } = conv) do 
-        %{ conv | path: "/wildthings" }
-    end
-
-    def rewrite_path(conv), do: conv
-
-    def log(conv), do: IO.inspect conv # IO.inspect prints *and* returns the inspected data structure
-
-    def parse(request) do
-        [method, path, _] =      
-            request
-            |> String.split("\n") # request passed as first arg to split/2
-            |> List.first
-            |> String.split(" ")
-
-        %{  method: method, 
-            path: path, 
-            resp_body: "", 
-            status: nil 
-         }
-
-        # [method, path, _] = ["GET", "/wildthings", "HTTP/1.1"]
     end
     
     # def route(conv) do
